@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>이전 사례 vs 은하 분류 실험 비교</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+      background: #f5c842;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      gap: 48px;
+    }
+
+    .section-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #444;
+      margin-bottom: 6px;
+      letter-spacing: 0.03em;
+    }
+
+    .slide {
+      width: 100%;
+      max-width: 1400px;
+      background: #f5c842;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 40px;
+      position: relative;
+      padding: 20px 60px;
+    }
+
+    .arrow {
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: #333;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      user-select: none;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+      padding: 24px 28px 20px;
+      min-width: 600px;
+      max-width: 640px;
+    }
+
+    .card-title {
+      font-size: 0.78rem;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+
+    thead th {
+      text-align: right;
+      padding: 6px 12px 10px;
+      color: #555;
+      font-weight: 600;
+      border-bottom: 1px solid #e0e0e0;
+      white-space: nowrap;
+    }
+
+    thead th:first-child { text-align: left; }
+
+    tbody tr { border-bottom: 1px solid #f0f0f0; }
+    tbody tr:last-child { border-bottom: none; }
+
+    tbody td {
+      padding: 10px 12px;
+      text-align: right;
+      color: #222;
+    }
+
+    tbody td:first-child { text-align: left; }
+
+    .badge-baseline {
+      display: inline-block;
+      background: #e8f0fe;
+      color: #1a73e8;
+      font-size: 0.72rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 6px;
+      font-weight: 500;
+    }
+
+    .best { color: #2e7d32; font-weight: 700; }
+
+    .legend {
+      display: flex;
+      gap: 20px;
+      margin-top: 14px;
+      font-size: 0.78rem;
+      color: #555;
+      align-items: center;
+    }
+
+    .legend-item { display: flex; align-items: center; gap: 5px; }
+
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-green { background: #2e7d32; }
+    .dot-blue  { background: #1a73e8; }
+
+    .divider {
+      width: 90%;
+      max-width: 1200px;
+      height: 2px;
+      background: rgba(0,0,0,0.12);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── 이전 사례 ── -->
+  <div>
+    <div class="section-label">이전 사례</div>
+    <div class="slide">
+      <div class="arrow">-&gt;</div>
+      <div class="card">
+        <div class="card-title">딥러닝 모델 경량화 최적화 비교</div>
+        <table>
+          <thead>
+            <tr>
+              <th>모델</th>
+              <th>정확도 (%)</th>
+              <th>파라미터 수</th>
+              <th>크기 (MB)</th>
+              <th>추론속도 (ms)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Baseline <span class="badge-baseline">Baseline</span></td>
+              <td>85.07</td>
+              <td>812,962</td>
+              <td>3.12</td>
+              <td>1.92</td>
+            </tr>
+            <tr>
+              <td>Knowledge Distillation</td>
+              <td>84.80</td>
+              <td>155,266</td>
+              <td>0.60</td>
+              <td class="best">0.50</td>
+            </tr>
+            <tr>
+              <td>Quantization</td>
+              <td>84.66</td>
+              <td>812,962</td>
+              <td class="best">0.82</td>
+              <td>1.38</td>
+            </tr>
+            <tr>
+              <td>Pruning 30%</td>
+              <td>84.13</td>
+              <td>812,962</td>
+              <td>3.12</td>
+              <td>2.00</td>
+            </tr>
+            <tr>
+              <td>Pruning 50%</td>
+              <td>84.85</td>
+              <td>812,962</td>
+              <td>3.12</td>
+              <td>1.60</td>
+            </tr>
+            <tr>
+              <td>Pruning 70%</td>
+              <td>84.31</td>
+              <td>812,962</td>
+              <td>3.12</td>
+              <td>1.77</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="legend">
+          <div class="legend-item"><div class="dot dot-green"></div><span>각 지표 최고값</span></div>
+          <div class="legend-item"><div class="dot dot-blue"></div><span>기준 모델</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── 본 탐구 (은하 분류) ── -->
+  <div>
+    <div class="section-label">본 탐구 — 허블 은하 분류 딥러닝 모델</div>
+    <div class="slide">
+      <div class="arrow">-&gt;</div>
+      <div class="card">
+        <div class="card-title">은하 형태 분류 모델 (96×96 해상도, 4,000장, Kaggle)</div>
+        <table>
+          <thead>
+            <tr>
+              <th>모델</th>
+              <th>정확도 (%)</th>
+              <th>파라미터 수</th>
+              <th>크기 (MB)</th>
+              <th>추론속도 (ms)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Baseline <span class="badge-baseline">Baseline</span></td>
+              <td>77.00</td>
+              <td>812,962</td>
+              <td>3.12</td>
+              <td>1.92</td>
+            </tr>
+            <tr>
+              <td>Knowledge Distillation</td>
+              <td>76.43</td>
+              <td>155,266</td>
+              <td>0.60</td>
+              <td class="best">0.50</td>
+            </tr>
+            <tr>
+              <td>Quantization</td>
+              <td>76.21</td>
+              <td>812,962</td>
+              <td class="best">0.82</td>
+              <td>1.38</td>
+            </tr>
+            <tr>
+              <td>Pruning 30%</td>
+              <td>75.62</td>
+              <td>812,962</td>
+              <td>3.12</td>
+              <td>2.00</td>
+            </tr>
+            <tr>
+              <td>Pruning 50%</td>
+              <td>76.30</td>
+              <td>812,962</td>
+              <td>3.12</td>
+              <td>1.60</td>
+            </tr>
+            <tr>
+              <td>Pruning 70%</td>
+              <td>75.80</td>
+              <td>812,962</td>
+              <td>3.12</td>
+              <td>1.77</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="legend">
+          <div class="legend-item"><div class="dot dot-green"></div><span>각 지표 최고값</span></div>
+          <div class="legend-item"><div class="dot dot-blue"></div><span>기준 모델</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
