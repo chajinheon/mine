@@ -17,7 +17,19 @@ interface Props {
   data: DailyAttendance[];
 }
 
-const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?: { value: number; name: string; color: string }[]; label?: string }) => {
+interface TooltipEntry {
+  value: number;
+  name: string;
+  color: string;
+}
+
+interface TooltipProps {
+  active?: boolean;
+  payload?: TooltipEntry[];
+  label?: string;
+}
+
+function CustomTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white border border-slate-200 rounded-xl shadow-lg px-4 py-3 text-sm">
@@ -31,7 +43,7 @@ const CustomTooltip = ({ active, payload, label }: { active?: boolean; payload?:
       ))}
     </div>
   );
-};
+}
 
 export default function AttendanceChart({ data }: Props) {
   const last30 = data.slice(-30).map((d) => ({
@@ -59,18 +71,29 @@ export default function AttendanceChart({ data }: Props) {
           <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickLine={false} axisLine={false} allowDecimals={false} />
           <Tooltip content={<CustomTooltip />} />
           <Legend
-            iconType="circle" iconSize={8}
-            formatter={(v) => <span style={{ fontSize: 12, color: '#64748b' }}>{v}</span>}
+            iconType="circle"
+            iconSize={8}
+            formatter={(v: string) => <span style={{ fontSize: 12, color: '#64748b' }}>{v}</span>}
           />
           <Area
-            type="monotone" dataKey="presentCount"
-            name="입실" stroke="#3b82f6" strokeWidth={2}
-            fill="url(#gPresent)" dot={false} activeDot={{ r: 4 }}
+            type="monotone"
+            dataKey="presentCount"
+            name="입실"
+            stroke="#3b82f6"
+            strokeWidth={2}
+            fill="url(#gPresent)"
+            dot={false}
+            activeDot={{ r: 4 }}
           />
           <Area
-            type="monotone" dataKey="checkoutCount"
-            name="퇴실" stroke="#8b5cf6" strokeWidth={2}
-            fill="url(#gCheckout)" dot={false} activeDot={{ r: 4 }}
+            type="monotone"
+            dataKey="checkoutCount"
+            name="퇴실"
+            stroke="#8b5cf6"
+            strokeWidth={2}
+            fill="url(#gCheckout)"
+            dot={false}
+            activeDot={{ r: 4 }}
           />
         </AreaChart>
       </ResponsiveContainer>

@@ -1,4 +1,4 @@
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import type { Student, AttendanceEntry, StudentStats, DailyAttendance, GradeStats } from './types';
 
 /** studyDuration 문자열("1시간 23분" 등)을 분으로 변환 */
@@ -34,7 +34,6 @@ export function buildStudentStats(
     if (entry.entryType === 'checkout' || entry.id?.endsWith('_out')) {
       checkoutsByKey.set(`${entry.studentId}_${entry.date}`, entry);
     } else {
-      // checkin or legacy
       const list = checkinsByStudent.get(entry.studentId) ?? [];
       list.push(entry);
       checkinsByStudent.set(entry.studentId, list);
@@ -127,7 +126,7 @@ export function buildGradeStats(
     );
     const daysByStudent = new Map<string, Set<string>>();
     for (const e of checkinsByGrade) {
-      const s = daysByStudent.get(e.studentId) ?? new Set();
+      const s = daysByStudent.get(e.studentId) ?? new Set<string>();
       s.add(e.date);
       daysByStudent.set(e.studentId, s);
     }

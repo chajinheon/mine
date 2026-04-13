@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, ElementType } from 'react';
 import { format } from 'date-fns';
 import { getDb } from '@/lib/firebase';
 import {
@@ -28,6 +28,12 @@ import {
 } from 'lucide-react';
 
 type Tab = 'overview' | 'students' | 'today';
+
+interface NavItem {
+  key: Tab;
+  label: string;
+  icon: ElementType;
+}
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
@@ -82,7 +88,7 @@ export default function DashboardPage() {
   const todayCheckout = checkoutSet.size;
   const currentlyIn = todayPresent - todayCheckout;
 
-  const navItems: { key: Tab; label: string; icon: React.ElementType }[] = [
+  const navItems: NavItem[] = [
     { key: 'overview', label: '개요', icon: LayoutDashboard },
     { key: 'today', label: '오늘 출석', icon: History },
     { key: 'students', label: '학생별 통계', icon: Users },
