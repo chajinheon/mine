@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
 import { getDb } from '@/lib/firebase';
 import {
@@ -24,7 +23,6 @@ import {
   LayoutDashboard,
   Users,
   History,
-  LogOut,
   RefreshCw,
   GraduationCap,
 } from 'lucide-react';
@@ -32,7 +30,6 @@ import {
 type Tab = 'overview' | 'students' | 'today';
 
 export default function DashboardPage() {
-  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [students, setStudents] = useState<Student[]>([]);
   const [entries, setEntries] = useState<AttendanceEntry[]>([]);
@@ -64,11 +61,6 @@ export default function DashboardPage() {
   }, [today]);
 
   useEffect(() => { loadData(); }, [loadData]);
-
-  const handleLogout = async () => {
-    await fetch('/api/auth/login', { method: 'DELETE' });
-    router.replace('/');
-  };
 
   const allEntries = [...entries, ...todayEntries.filter((e) => !entries.find((x) => x.id === e.id))];
   const studentStats: StudentStats[] = buildStudentStats(students, allEntries, thisMonth);
@@ -127,7 +119,7 @@ export default function DashboardPage() {
           ))}
         </nav>
 
-        <div className="p-3 border-t border-slate-100 space-y-0.5">
+        <div className="p-3 border-t border-slate-100">
           <button
             onClick={loadData}
             disabled={loading}
@@ -135,13 +127,6 @@ export default function DashboardPage() {
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             새로고침
-          </button>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            로그아웃
           </button>
         </div>
       </aside>
