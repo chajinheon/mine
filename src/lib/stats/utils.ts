@@ -1,6 +1,4 @@
 import { Student, AttendanceEntry, DailyStats } from '@/types';
-import { isWeekday } from 'date-fns/locale';
-import { parseISO, isMonday, isFriday } from 'date-fns';
 
 export function parseDurationToMinutes(duration?: string): number {
   if (!duration) return 0;
