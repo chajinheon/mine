@@ -5,12 +5,8 @@ const nextConfig: NextConfig = {
   typescript: {
     tsconfigPath: './tsconfig.json',
   },
-  webpack: (config) => {
-    config.resolve.extensionAlias = {
-      '.js': ['.ts', '.tsx', '.js'],
-    };
-    return config;
-  },
+  // Turbopack 사용 (Next.js 16 기본)
+  turbopack: {},
 };
 
 export default nextConfig;
