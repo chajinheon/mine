@@ -3,11 +3,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { format } from 'date-fns';
-import {
-  isSessionValid,
-  setSessionExpiry,
-  clearSessionExpiry,
-} from '@/lib/auth';
 import { getDb } from '@/lib/firebase';
 import {
   fetchAllStudents,
@@ -18,7 +13,6 @@ import {
   buildStudentStats,
   buildDailyAttendance,
   buildGradeStats,
-  formatMinutes,
 } from '@/lib/stats';
 import type { Student, AttendanceEntry, StudentStats, DailyAttendance, GradeStats } from '@/lib/types';
 import OverviewCards from '@/components/OverviewCards';
@@ -40,7 +34,6 @@ type Tab = 'overview' | 'students' | 'today';
 export default function DashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('overview');
-
   const [students, setStudents] = useState<Student[]>([]);
   const [entries, setEntries] = useState<AttendanceEntry[]>([]);
   const [todayEntries, setTodayEntries] = useState<AttendanceEntry[]>([]);
@@ -49,24 +42,6 @@ export default function DashboardPage() {
 
   const today = format(new Date(), 'yyyy-MM-dd');
   const thisMonth = format(new Date(), 'yyyy-MM');
-
-  // 세션 유효성 주기 체크
-  useEffect(() => {
-    if (!isSessionValid()) {
-      clearSessionExpiry();
-      router.replace('/');
-      return;
-    }
-    const tick = setInterval(() => {
-      if (!isSessionValid()) {
-        clearSessionExpiry();
-        router.replace('/');
-      } else {
-        setSessionExpiry();
-      }
-    }, 30_000);
-    return () => clearInterval(tick);
-  }, [router]);
 
   const loadData = useCallback(async () => {
     const db = getDb();
@@ -90,29 +65,29 @@ export default function DashboardPage() {
 
   useEffect(() => { loadData(); }, [loadData]);
 
-  const handleLogout = () => {
-    clearSessionExpiry();
+  const handleLogout = async () => {
+    await fetch('/api/auth/login', { method: 'DELETE' });
     router.replace('/');
   };
 
-  // 데이터 쪼이기
   const allEntries = [...entries, ...todayEntries.filter((e) => !entries.find((x) => x.id === e.id))];
   const studentStats: StudentStats[] = buildStudentStats(students, allEntries, thisMonth);
   const dailyAttendance: DailyAttendance[] = buildDailyAttendance(allEntries);
   const gradeStats: GradeStats[] = buildGradeStats(students, allEntries, today);
 
-  const todayPresent = new Set(
+  const checkinSet = new Set(
     todayEntries
       .filter((e) => e.entryType === 'checkin' || e.id?.endsWith('_in'))
       .map((e) => e.studentId)
-  ).size;
-
-  const todayCheckout = new Set(
+  );
+  const checkoutSet = new Set(
     todayEntries
       .filter((e) => e.entryType === 'checkout' || e.id?.endsWith('_out'))
       .map((e) => e.studentId)
-  ).size;
+  );
 
+  const todayPresent = checkinSet.size;
+  const todayCheckout = checkoutSet.size;
   const currentlyIn = todayPresent - todayCheckout;
 
   const navItems: { key: Tab; label: string; icon: React.ElementType }[] = [
@@ -171,9 +146,8 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      {/* Main */}
+      {/* Main content */}
       <main className="ml-56 flex-1 p-8 min-h-screen">
-        {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">
@@ -186,21 +160,19 @@ export default function DashboardPage() {
             )}
           </div>
           <div className="flex items-center gap-2 bg-white rounded-xl px-4 py-2 border border-slate-200 text-sm text-slate-500">
-            <span className="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+            <span className="w-2 h-2 rounded-full bg-green-500 inline-block" />
             전체 학생 {students.length}명
           </div>
         </div>
 
-        {loading && (
+        {loading ? (
           <div className="flex items-center justify-center py-32">
             <div className="flex flex-col items-center gap-3 text-slate-400">
               <RefreshCw className="w-8 h-8 animate-spin" />
               <span className="text-sm">데이터를 불러오는 중...</span>
             </div>
           </div>
-        )}
-
-        {!loading && (
+        ) : (
           <>
             {activeTab === 'overview' && (
               <div className="space-y-6">
@@ -215,15 +187,9 @@ export default function DashboardPage() {
                 <AttendanceChart data={dailyAttendance} />
               </div>
             )}
-
             {activeTab === 'today' && (
-              <TodayLog
-                entries={todayEntries}
-                students={students}
-                today={today}
-              />
+              <TodayLog entries={todayEntries} students={students} today={today} />
             )}
-
             {activeTab === 'students' && (
               <StudentTable stats={studentStats} thisMonth={thisMonth} />
             )}
